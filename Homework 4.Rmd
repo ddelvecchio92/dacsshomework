@@ -1,0 +1,66 @@
+---
+title: "Homework4"
+author: "Dana Del Vecchio"
+date: "4/15/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readxl)
+data <- read_excel("Downloads/Parenting behaviour pilot data 3-3-2021 (1).xlsx")
+
+```
+
+#I am going to create a stacked barplot to compare Jordanian and Syrian parents' answers to Question 31: "What are the positive things that might happen as a result of  reading books with {Focal Child} each day?".
+
+#I chose a stacked barplot because I wanted to compare fathers' answers to mothers' answers. Parents were asked to vote 'yes' or 'no' on multiple response options and they could choose more than one. The response options I included in the stacked barplot are: "Becoming Smarter" (I abbreviated into Smarter),"Learning New Things" (I abbreviated into knowledge), "Becoming Creative" (I abbreviated into Creative),"Language Skills Improving" (I abbreviated into Language),"Improving My Child's Mood" (I abbreviated into Better Mood),and "Helping My Child Focus on a Task" (which I abbreciated to focused). I like the barplot visual because the audience can see the # of counts parents voted for and see which option received the higehst # of counts.
+
+##Since I am slow at R, the below visual took me a long time and I received guidance from a tutor. I intend to learn and display more visuals on Homework 5 and 6.
+
+```{r}
+library(ggplot2)
+a = as.data.frame(table(data$Question1,data$Gender))
+b = as.data.frame(table(data$Question2,data$Gender))
+c = rbind(a,b)
+
+a1 = rbind(a,as.data.frame(table(data$Question2,data$Gender)))
+a2 = rbind(a1,as.data.frame(table(data$Question3,data$Gender)))
+a3 = rbind(a2,as.data.frame(table(data$Question4,data$Gender)))
+a4 = rbind(a3,as.data.frame(table(data$Question5,data$Gender)))
+a5 = rbind(a4,as.data.frame(table(data$Question6,data$Gender)))
+a5$Question = rep(c("Smarter","Knowledge","Creative","Language","Better mood","Focused"), each=4)
+a5$Var2 <-as.numeric(as.character(a5$Var2))
+a5$gender ="Male"
+a5$gender[a5$Var2==2] <-"Female"
+a5$color = "pink"
+a5$color[a5$gender=="Male"] <- "grey"
+# Barplot
+ggplot(a5, aes(x=Question, y=Freq))  + 
+  geom_bar(stat = "identity")
+
+ggplot(a5[a5$Var1==1,]) + 
+   geom_bar(stat='identity',aes(x=Question, y=Freq),fill=a5$color[a5$Var1==1]) + 
+    geom_text(aes(x=Question, y=Freq,label=Freq),vjust=2)
+
+ggplot(a5[a5$Var1==1,], aes(x=Question, y=Freq, fill=gender)) + 
+   geom_bar(stat='identity')
+
+ggplot(a5[a5$Var1==1,], aes(x=Question, y=Freq, fill=gender)) + 
+   geom_bar(stat='identity', position = 'dodge')+ 
+    geom_text(aes(x=Question, y=Freq,label=Freq), vjust = 1.5, position = position_dodge(.9), size = 3.5)+ labs(title = "Parents' beliefs of benifits of reading daily")+
+  scale_fill_brewer(palette = "Pastel1")
+
+ggplot(a5[a5$Var1==1,], aes(x=Question, y=Freq, fill=gender)) + 
+   geom_bar(stat='identity')+ facet_wrap(~ gender) 
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

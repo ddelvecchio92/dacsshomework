@@ -1,0 +1,54 @@
+---
+title: "DACSS 601 Homework 3"
+author: "Dana Del Vecchio"
+date: "4/10/2021"
+output: pdf_document
+---
+## R Markdown
+
+#Parental Behavior In the Early Years
+##by Dana Delvecchio
+
+###Parenting_behavior_pilot_data_3_3_2021 is pilot data from a parent survey in Amman, Jordan. The survey asked 36 Syrian and Jordanian parents questions about their knowledge and attitude about early childhood development and certain activities (such as reading, playing, learning numbers, etc.) as well as their practices with their children ages 0 to 5. The survey also seeks to identify the barriers and drivers to certain practices (reading, playing, learning numbers, etc.) in order to inform a parent behavior change and communication campaign in Jordan. The survey cosists of mostly close-ended questions with specific choices for the enumerator to select from. Also, please note that the survey starts with time, date and location data, and then demographic information about the parent.
+####Parenting_behavior_pilot_data_3_3_2021 consists of 36 observations and 1116 columns.
+
+```{r setup, include=FALSE}
+knitr::opts_knit$set(root.dir = "~/D:")
+getwd()
+```
+
+
+## Part 0
+```{r}
+library(readxl)
+library (dplyr)
+install.packages("SmartEDA")
+PilotData <- read_excel("Parenting behaviour pilot data 3-3-2021.xlsx")
+str(data)
+head(data)
+```
+##Part 1: Descriptions of the variables. The survey starts out with intake and demographic variables such as name of parent, gender of parent, age of parent, city, locality and district, and nationality. There are also time series variables such as the time and date of the interview and the length in minutes of the interview. Then, the survey has additional demographic questions about the  ages of the parent's children, their genders, whether the children have developmental delays, etc. Next, the data collector poorly labels the rest of the variables. Specifically, the data collector uses the full question and/or the question responses as the variable name. The data sat is therefore quite messy and requires a lot of recoding and renaming. For the purposes of this homework, I am going to recode one variable that I find interesting since a lot of the data is not particularly useful.
+
+## Part 2: Recoding one of the variables
+#### I explored the excel data file and I noticed an interesting finding from question Q34.2.1 (How difficult would it be to get a sufficient number of books that are relevant to Focal Child's age so that you can read with him/her each day?  Would it be very difficult, somewhat difficult or not difficult at all?). I want to compare parents' responses to this question across nationality and geography.
+###Rename the above column name to AccessingBooks since it is currently titled as the long survey item question.
+```{r}
+colnames(PilotData)[colnames(PilotData) == "Q34.2.1  How difficult would it be to get a sufficient number of books that are relevant to {#Dum1#}'s age so that you can read with him/her each day?  Would it be very difficult, somewhat difficult or not difficult at all?"] <- "AccessingBooks"
+```
+###Part 3: Now I will use 'table' to generate a table showing responses for the variable AccessingBooks.
+``` {r}
+PilotData %>% select(AccessingBooks) %>% table()
+```
+###I'm not sure what the above table means so I am going to try assigning labels to the numbers (Note: 1, 2 and 3 were codes for the three potential responses to that question).
+```{r}
+PilotData$AccessingBooks <- factor(PilotData$AccessingBooks, levels = 1:3, labels = c('Very difficult', 'Somewhat difficult', 'Not difficult at all'))
+```
+###Now that I have assigned labels, I am going to re-try the table.
+``` {r}
+PilotData %>% select(AccessingBooks) %>% table()
+```
+###Even though this is a small number of parents, I would like to compare the responses across nationality and geography. I am going to use the group function first.
+```{r}
+by_nationality <- group_by(PilotData, nationality)
+ExpCustomStat(PilotData,AccessingBooks=c('Very difficult', 'Somewhat difficult', 'Not difficult at all'),gpby=TRUE,filt=NULL)
+```
